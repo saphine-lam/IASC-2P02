@@ -2,10 +2,6 @@ import * as THREE from 'three';
 import * as dat from "lil-gui"
 import { OrbitControls } from "OrbitControls"
 
-console.log(THREE)
-console.log(dat)
-console.log(OrbitControls)
-
 /*********
 **SET UP**
 *********/
@@ -15,6 +11,22 @@ const sizes = {
     aspectRatio: window.innerWidth / window.innerHeight
 }
 
+//Resizing
+window.addEventListener('resize',() =>
+{
+    //Update sizes
+    sizes.width = window.innerWidth
+    sizes.height = window.innerHeight
+    sizes.aspectRatio = window.innerWidth / window.innerHeight
+
+    //Update Camera 
+    camera.aspect = sizes.aspectRatio
+    camera.updateProjectionMatrix()
+
+    //Update Renderer
+    renderer.setSize(sizes.width, sizes.height)
+    renderer.setPixelRatop(Math.min(window.devicePixelRatio, 2))
+})
 
 /***********
  ** SCENE **

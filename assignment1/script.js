@@ -76,7 +76,7 @@ dice.castShadow = true
 scene.add(dice)
 
 //Slinky
-const TubeGeometry = new THREE.TubeGeometry();
+const TubeGeometry = new THREE.TubeGeometry(path, 20, 2, 8, true);
 const TubeMaterial = new THREE.MeshNormalMaterial()
 const legOne = new THREE.Mesh(TubeGeometry, TubeMaterial)
 legOne.position.set(9,2,0)
@@ -233,16 +233,29 @@ const animation = () =>
     {  
         //camera.position.set(9,2,2.5)
         //camera.lookAt(0,0,0)
-        dice.position.set(12.5, 4.25, 2)
-        legOne.position.set(11,4,2)
-        directionalLight.shadow.mapSize.width = 512
-        directionalLight.shadow.mapSize.height = 512
+        const geometry = new THREE.TubeGeometry(path, 10, 1, 6, true)
     }
 
     //second change 
     if (domObject.secondChange) 
     {
-        directionalLight.position.set(20, 4.1, 10)
+        const ui = new dat.GUI()
+
+const lightPositionFolder = ui.addFolder('Light Position')
+
+lightPositionFolder
+    .add(directionalLight.position, 'y')
+    .min(-10)
+    .max(10)
+    .step(0.1)
+    .name('Y')
+
+lightPositionFolder
+    .add(directionalLight.position, 'z')
+    .min(-10)
+    .max(10)
+    .step(0.1)
+    .name('Z')
     }
 
     //third change 
