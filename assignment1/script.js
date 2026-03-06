@@ -2,10 +2,6 @@ import * as THREE from 'three';
 import * as dat from "lil-gui"
 import { OrbitControls } from "OrbitControls"
 
-console.log(THREE)
-console.log(dat)
-console.log(OrbitControls)
-
 /*********
 **SET UP**
 *********/
@@ -67,21 +63,55 @@ scene.add(cave)
 
 //Objects 
 
+const sphereLowPoly = new THREE.SphereGeometry(2,7,7)
+const sphereLowPoly2 = new THREE.SphereGeometry(1,7,7)
+const sphereHighPoly = new THREE.SphereGeometry(2,32,32)
+const sphereHighPoly2 = new THREE.SphereGeometry(1,32,32)
+const sphereMat = new THREE.MeshNormalMaterial()
+const sphere1 = new THREE.Mesh(sphereLowPoly,sphereMat)
+const sphere01 = new THREE.Mesh(sphereLowPoly2,sphereMat)
+const sphere2 = new THREE.Mesh(sphereHighPoly,sphereMat)
+const sphere02 = new THREE.Mesh(sphereHighPoly2,sphereMat)
+sphere1.position.set(10.5,2.25,0)
+sphere01.position.set(10.5,2.25, 3)
+sphere2.position.set(10.5,2.25,0)
+sphere02.position.set(10.5,2.25,3)
+sphere1.castShadow = true
+sphere01.castShadow = true
+sphere2.castShadow = true
+sphere02.castShadow = true
+scene.add(sphere1)
+scene.add(sphere01)
+scene.add(sphere2)
+scene.add(sphere02)
+sphere2.visible = false
+sphere02.visible = false
 //Dice
-const IcosahedronGeometry = new THREE.IcosahedronGeometry();
+/*const IcosahedronGeometry = new THREE.IcosahedronGeometry();
 const IcosahedronMaterial = new THREE.MeshNormalMaterial()
 const dice = new THREE.Mesh(IcosahedronGeometry, IcosahedronMaterial)
 dice.position.set(10.5, 2.25, 0)
 dice.castShadow = true 
-scene.add(dice)
+scene.add(dice)*/
 
 //Slinky
-const TubeGeometry = new THREE.TubeGeometry(path, 20, 2, 8, true);
+/*class CustomSinCurve extends THREE.Curve {
+	getPoint( t, optionalTarget = new THREE.Vector3() ) {
+		const tx = t * 3 - 1.5;
+		const ty = Math.sin( 2 * Math.PI * t );
+		const tz = 0;
+		return optionalTarget.set( tx, ty, tz );
+	}
+}
+
+const path = new CustomSinCurve( 10 )
+const TubeGeometry = new THREE.TubeGeometry(path, 20, 0.2, 8, true)
+
 const TubeMaterial = new THREE.MeshNormalMaterial()
 const legOne = new THREE.Mesh(TubeGeometry, TubeMaterial)
 legOne.position.set(9,2,0)
 legOne.castShadow = true 
-scene.add(legOne)
+scene.add(legOne) */
 
 //Left Sphere
 /* const leftSphereGeometry = new THREE.SphereGeometry(0.5, 32, 16)
@@ -154,7 +184,7 @@ document.querySelector('#part-one').onclick = function() {
 
 //part-two
 document.querySelector('#part-two').onclick = function() {
-    domObject.part = 1
+    domObject.part = 2
 }
 
 //first-change 
@@ -207,15 +237,15 @@ const animation = () =>
 {
     //Return elapsedTime
     const elapsedTime = clock.getElapsedTime()
-    console.log(elapsedTime)
+    //console.log(elapsedTime)
 
-    console.log(camera.position)
+    //console.log(camera.position)
 
    //part-one
     if(domObject.part === 1)
     {
-        //camera.position.set(9,0,2.5)
-        //camera.lookAt(0,0,0)
+        camera.position.set(9,0,2.5)
+        camera.lookAt(0,0,0)
         
        
     }
@@ -223,7 +253,7 @@ const animation = () =>
    //part-two
    if(domObject.part === 2)
     {
-        camera.position.set(9,0,2.5)
+        camera.position.set(15,0,2.5)
         camera.lookAt(0,0,0)
 
     }
@@ -231,43 +261,51 @@ const animation = () =>
     //first change 
     if(domObject.firstChange) 
     {  
-        //camera.position.set(9,2,2.5)
-        //camera.lookAt(0,0,0)
-        const geometry = new THREE.TubeGeometry(path, 10, 1, 6, true)
+        sphere1.visible = true
+        sphere01.visible = true
+        sphere2.visible = false
+        sphere02.visible = false
+        camera.position.set(10,2,2.5)
+        camera.lookAt(0,0,0)
+        sphere1.position.set(10.5,2.25,0)
+        sphere01.position.set(10.5,2.25, 3)
+        sphere2.position.set(10.5,2.25,0)
+        sphere02.position.set(10.5,2.25,3)
+        
     }
 
     //second change 
     if (domObject.secondChange) 
     {
-        const ui = new dat.GUI()
-
-const lightPositionFolder = ui.addFolder('Light Position')
-
-lightPositionFolder
-    .add(directionalLight.position, 'y')
-    .min(-10)
-    .max(10)
-    .step(0.1)
-    .name('Y')
-
-lightPositionFolder
-    .add(directionalLight.position, 'z')
-    .min(-10)
-    .max(10)
-    .step(0.1)
-    .name('Z')
+        directionalLight.position.z = Math.sin(elapsedTime) * 2;
+        sphere1.position.set(10.5,2.25,0)
+        sphere01.position.set(10.5,2.25, 3)
+        sphere2.position.set(10.5,2.25,0)
+        sphere02.position.set(10.5,2.25,3)
     }
 
     //third change 
     if(domObject.thirdChange)
     {
-
+        sphere1.visible = false
+        sphere01.visible = false
+        sphere2.visible = true
+        sphere02.visible = true
+        sphere1.position.set(10.5,2.25,0)
+        sphere01.position.set(10.5,2.25, 3)
+        sphere2.position.set(10.5,2.25,0)
+        sphere02.position.set(10.5,2.25,3)
     }
 
     //fourth change
     if(domObject.fourthChange)
     {
-        
+        sphere1.visible = false
+        sphere01.visible = false
+        sphere2.visible = true
+        sphere02.visible = true
+        sphere2.position.set(3.5,0,0)
+        sphere02.position.set(3.5,0,3)
     }
 
     //Update directionalLightHelper
