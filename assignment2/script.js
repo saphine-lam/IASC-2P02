@@ -26,7 +26,7 @@ window.addEventListener('resize',() =>
 
     //Update Renderer
     renderer.setSize(sizes.width, sizes.height)
-    renderer.setPixelRatop(Math.min(window.devicePixelRatio, 2))
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 })
 
 /***********
@@ -77,9 +77,24 @@ const cubeGeometry = new THREE. BoxGeometry(0.5, 0.5, 0.5)
 const drawCube = (height, params) => 
 {
     //Create cube material 
-    const material = new THREE.MeshStandardMaterial ({
-        color: new THREE.Color(params.color)
+    let material
+    if(params.emissive)
+    {
+        material = new THREE.MeshLambertMaterial ({
+            emissive: new THREE.Color(params.color),
+            emissiveIntensity: height * 0.05
     })
+    } else {
+        material = new THREE.MeshStandardMaterial ({
+        color: new THREE.Color(params.color)
+        })
+    }
+
+    //Wireframe
+    if(params.wireframe)
+    {
+        material.wireframe = true
+    }
 
     //Create cube 
     const cube = new THREE.Mesh(cubeGeometry, material)
@@ -95,17 +110,78 @@ const drawCube = (height, params) =>
     cube.scale.z = params.scale
 
     //Randomize cube rotation 
-    cube.rotation.x = Math.random() * 2 * Math.PI
-    cube.rotation.z = Math.random() * 2 * Math.PI
-    cube.rotation.y = Math.random() * 2 * Math.PI
+    if(params.randomized){
+        cube.rotation.x = Math.random() * 2 * Math.PI
+        cube.rotation.z = Math.random() * 2 * Math.PI
+        cube.rotation.y = Math.random() * 2 * Math.PI
+    }
     
-    //Add cube to scene
-    scene.add(cube)
+    //Add cube to group
+    params.group.add(cube)
+
 }
 
+    const drawSphere = (height,params) => {
+        const sphereGeometry = new THREE.SphereGeometry(0.3)
+        const sphereMaterial = new THREE.MeshStandardMaterial({
+            color: new THREE.Color(params.color)
+        })
+
+    //Create sphere
+    const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial)
+
+    //Position sphere 
+    sphere.position.x = (Math.random() - 0.5) * params.diameter
+    sphere.position.z = (Math.random() - 0.5) * params.diameter
+    sphere.position.y = height - 10
+
+    //Scale Sphere
+    sphere.scale.x = params.scale
+    sphere.scale.y = params.scale
+    sphere.scale.z = params.scale
+
+    //Randomize cube rotation 
+    if(params.randomized){
+        sphere.rotation.x = Math.random() * 2 * Math.PI
+        sphere.rotation.z = Math.random() * 2 * Math.PI
+        sphere.rotation.y = Math.random() * 2 * Math.PI
+    }
+    
+    //Add sphere to group
+    params.group.add(sphere)
+    } 
+
+ const drawTetrahedron = (height,params) => {
+        const tetrahedronGeometry = new THREE.TetrahedronGeometry(0.5)
+        const tetrahedronMaterial = new THREE.MeshStandardMaterial({
+            color: new THREE.Color(params.color)
+        })
+
+    //Create sphere
+    const tetrahedron = new THREE.Mesh(tetrahedronGeometry, tetrahedronMaterial)
+
+    //Position sphere 
+    tetrahedron.position.x = (Math.random() - 0.5) * params.diameter
+    tetrahedron.position.z = (Math.random() - 0.5) * params.diameter
+    tetrahedron.position.y = height - 10
+
+    //Scale Sphere
+    tetrahedron.scale.x = params.scale
+    tetrahedron.scale.y = params.scale
+    tetrahedron.scale.z = params.scale
+
+    //Randomize cube rotation 
+    if(params.randomized){
+        tetrahedron.rotation.x = Math.random() * 2 * Math.PI
+        tetrahedron.rotation.z = Math.random() * 2 * Math.PI
+        tetrahedron.rotation.y = Math.random() * 2 * Math.PI
+    }
+    
+    //Add tetrahedron to group
+    params.group.add(tetrahedron)
+    } 
+
 //drawCube('pink')
-
-
 
 /********
  ** UI **
@@ -115,38 +191,59 @@ const ui = new dat.GUI()
 
 let preset = {}
 
+//Groups
+const group1 = new THREE.Group()
+scene.add(group1)
+const group2 = new THREE.Group()
+scene.add(group2)
+const group3 = new THREE.Group()
+scene.add(group3)
+
 const uiObj = {
-    sourceText: "The quick brown fox jumped over my lazy dog.",
+    sourceText: "",
     saveSourceText() {
         saveSourceText()
     },
     term1: {
-        term:'fox',
-        color: '#aa00ff',
+        term:'crowley',
+        color: '#ff0000',
+        group: group1,
         diameter: 10,
-        nCubes: 100,
+        emissive: true,
+        nCubes: 1,
         randomized: true,
-        scale: 1
+        scale: 1,
+        wireframe: false,
+        shape: 3
     },
      term2: {
-        term:'dog',
-        color: '#00ffaa',
+        term:'aziraphale',
+        color: '#ffffff',
+        group: group2,
         diameter: 10,
+        emissive: false,
         randomized: true,
-        nCubes: 100,
-        scale: 1
+        nCubes: 1,
+        scale: 1,
+        wireframe: false,
+        shape: 2
     },
      term3: {
-        term:'',
-        color: '',
+        term:'adam',
+        color: '#009dff',
+        group: group3,
         diameter: 10,
+        emissive: false,
         randomized: true,
-        nCubes: 100,
-        scale: 1
+        nCubes: 1,
+        scale: 1,
+        wireframe: true,
+        shape: 1
     },
     saveTerms() {
         saveTerms()
-    }
+    },
+    rotateCamera: false
 }
 
 //UI Functions 
@@ -158,6 +255,7 @@ const saveSourceText = () =>
     termsFolder.show()
     visualizeFolder.show()
 
+
     //Text Analysis 
     tokenizeSourceText (uiObj.sourceText)
     //console.log(uiObj.sourceText)
@@ -168,6 +266,7 @@ const saveTerms = () =>
     //UI
     preset = ui.save()
     visualizeFolder.hide()
+    cameraFolder.show()
     
     //Testing 
     //console.log(uiObj.term1)
@@ -194,17 +293,18 @@ textFolder
     .add(uiObj, 'saveSourceText')
     .name("Save")
 
-//Terms and Visualize Folders
+//Terms, Visualize and Camera Folders
 const termsFolder = ui.addFolder("Search Terms")
 const visualizeFolder = ui.addFolder("Visualize")
-
-//Terms and Visualize folders are hidden by default
-termsFolder.hide()
-visualizeFolder.hide()
+const cameraFolder = ui.addFolder("Camera")
 
 termsFolder
     .add(uiObj.term1, 'term')
     .name("Term 1")
+
+termsFolder
+    .add(group1, 'visible')
+    .name("Term 1 Visibility")
 
 termsFolder
     .addColor(uiObj.term1, 'color')
@@ -213,6 +313,10 @@ termsFolder
 termsFolder
     .add(uiObj.term2, 'term')
     .name("Term 2")
+
+termsFolder
+    .add(group2, 'visible')
+    .name("Term 2 Visibility")
 
 termsFolder
     .addColor(uiObj.term2, 'color')
@@ -227,9 +331,23 @@ termsFolder
     .addColor(uiObj.term3, 'color')
     .name("Term 3 Color")
 
+termsFolder
+    .add(group3, 'visible')
+    .name("Term 3 Visibility")
+
+
 visualizeFolder
     .add(uiObj,'saveTerms')
     .name("Visualize")
+
+cameraFolder
+    .add(uiObj, 'rotateCamera')
+    .name("Turntable")
+
+//Terms and Visualize folders are hidden by default
+termsFolder.hide()
+visualizeFolder.hide()
+cameraFolder.hide()
 
 /******************
 ** TEXT ANALYSIS **
@@ -259,9 +377,26 @@ const findSearchTermInTokenizedText = (params) =>
             const height = (100 / tokenizedText.length) * i * 0.2
 
             //call drawCube functon nCubes times using converted height value
-            for(let a = 0; a < params.ncubes; a++)
+            if(1===params.shape)
+            {
+            for(let a = 0; a < params.nCubes; a++)
             {
             drawCube(height, params)
+            }
+            }
+             if(2===params.shape)
+            {
+            for(let a = 0; a < params.nCubes; a++)
+            {
+            drawSphere(height, params)
+            }
+            }
+            if(3===params.shape)
+            {
+            for(let a = 0; a < params.nCubes; a++)
+            {
+            drawTetrahedron(height, params)
+            }
             }
         }
     }
@@ -284,6 +419,15 @@ const animation = () =>
 
     //Update OrbitControls
     controls.update()
+
+    // Rotate Camera 
+    if(uiObj.rotateCamera)
+    {
+       camera.position.x = Math.sin(elapsedTime * 0.1) * 20
+       camera.position.z = Math.cos(elapsedTime * 0.1) * 20
+       camera.position.y = 5
+       camera.lookAt(0, 0, 0)
+    }
 
     //Renderer
     renderer.render(scene, camera)
